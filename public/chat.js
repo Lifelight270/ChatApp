@@ -11,7 +11,8 @@ function login() {
   document.getElementById("login").style.display = "none";
   document.getElementById("chatArea").style.display = "block";
 
-  ws = new WebSocket(`ws://${location.host}`);
+  const protocol = location.protocol === "https:" ? "wss" : "ws";
+  ws = new WebSocket(`${protocol}://${location.host}`);
 
   ws.onopen = () => {
     ws.send(JSON.stringify({ type: "login", username: myName }));
@@ -76,6 +77,11 @@ function sendMessage() {
   const input = document.getElementById("msg");
   const message = input.value.trim();
   if (!message) return;
+
+  if (!ws || ws.readyState !== WebSocket.OPEN) {
+    alert("⚠️ Connection not open. Please wait or refresh.");
+    return;
+  }
 
   ws.send(JSON.stringify({ type: "message", message }));
   input.value = "";
